@@ -1,0 +1,85 @@
+.book-list {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers all book items on the page */
+}
+
+.book-item {
+  list-style: none;
+  margin-bottom: 1rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 700px;
+  width: 100%;
+}
+
+.book-image {
+  width: 140px;
+  height: auto;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.book-info {
+  flex: 1;
+}
+
+.book-title-link {
+  text-decoration: none;
+  color: #333;
+}
+
+.book-title {
+  margin: 0 0 0.5rem 0;
+  color: green;
+  font-size: 24px;
+}
+
+.book-author {
+  margin: 0 0 0.5rem 0;
+}
+
+.book-description {
+  margin: 0;
+  line-height: 1.5;
+  color: #555;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* limits description to 3 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 500px;
+}
+
+.search-input {
+  width: 90%;
+  max-width: 500px;
+  padding: 0.6rem;
+  margin: 1rem 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.search-button {
+  background-color: gray;
+
+  margin: 2rem 0;
+  border: none;
+  max-width: 100px;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-button:hover {
+  background-color: #357abd;
+}
