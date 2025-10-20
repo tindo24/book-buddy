@@ -1,0 +1,13 @@
+.books-page {
+  display: flex;
+  gap: 40px;
+  padding: 20px;
+}
+
+.book-list-container {
+  flex: 2;
+}
+
+.profile-container {
+  flex: 1;
+}

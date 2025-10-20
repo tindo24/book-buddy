@@ -4,7 +4,7 @@ import { useAuth } from "../auth/Authcontext";
 import "./Navbar.css";
 
 export default function Navbar() {
-  const { token, user, logout } = useAuth();
+  const { token, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -27,14 +27,8 @@ export default function Navbar() {
 
         {token ? (
           <>
-            {user && (
-              <span className="nav-welcome">Welcome, {user.firstname}</span>
-            )}
-            <Link to="/reservations" className="nav-link">
-              My Reservations
-            </Link>
             <Link to="/profile" className="nav-link">
-              Profile
+              Account
             </Link>
             <button onClick={handleLogout} className="nav-button">
               Log Out

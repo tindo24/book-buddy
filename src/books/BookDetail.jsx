@@ -1,13 +1,17 @@
 // src/books/BookDetail.jsx
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { getBookById, reserveBook } from "../api/books";
 import { useAuth } from "../auth/Authcontext";
+import "./BookDetail.css";
 
 export default function BookDetail() {
   const { id } = useParams();
-  const { token } = useAuth(); // get token for authenticated requests
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
   const [book, setBook] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isReserving, setIsReserving] = useState(false);
   const [reserved, setReserved] = useState(false);
@@ -17,66 +21,43 @@ export default function BookDetail() {
       try {
         const data = await getBookById(id);
         setBook(data);
-
-        // If API provides reserved info
-        if (data.isReserved) {
-          setReserved(true);
-        }
-      } catch (err) {
+        if (data.isReserved) setReserved(true);
+      } catch {
         setError("Failed to load book details.");
+      } finally {
+        setLoading(false);
       }
     }
     fetchBook();
   }, [id]);
 
   const handleReserve = async () => {
-    if (!token) {
-      alert("You must be logged in to reserve a book.");
-      return;
-    }
-
-    if (reserved) {
-      alert("This book is already reserved.");
-      return;
-    }
+    if (reserved) return;
 
     setIsReserving(true);
     try {
       await reserveBook(id, token);
       setReserved(true);
-      alert(`You have successfully reserved "${book.title}"`);
+      navigate("/profile"); // Redirect to profile after reserving
     } catch (err) {
-      if (err.message.includes("already reserved")) {
-        alert(`Sorry, "${book.title}" is already reserved.`);
-        setReserved(true);
-      } else {
-        alert("Failed to reserve this book. Try again.");
-      }
+      console.error(err);
+      setReserved(true); // Gray out if already reserved
     } finally {
       setIsReserving(false);
     }
   };
 
+  if (loading) return <p>Loading book details...</p>;
   if (error) return <p>{error}</p>;
-  if (!book) return <p>Loading book details...</p>;
 
   return (
-    <div
-      style={{
-        background: "#f8f8f8",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        padding: "20px",
-        maxWidth: "600px",
-        margin: "20px auto",
-      }}
-    >
+    <div className="book-detail-container">
       <h2>{book.title}</h2>
       {book.coverimage && (
         <img
           src={book.coverimage}
           alt={book.title}
-          style={{ width: "200px", borderRadius: "6px", marginBottom: "15px" }}
+          className="book-detail-image"
         />
       )}
       <p>
@@ -84,25 +65,20 @@ export default function BookDetail() {
       </p>
       {book.description && <p>{book.description}</p>}
 
-      <button
-        onClick={handleReserve}
-        disabled={isReserving || reserved}
-        style={{
-          marginTop: "20px",
-          background: reserved ? "gray" : "#007bff",
-          color: "white",
-          border: "none",
-          padding: "10px 20px",
-          borderRadius: "5px",
-          cursor: reserved ? "not-allowed" : "pointer",
-        }}
-      >
-        {reserved
-          ? "Book Reserved!"
-          : isReserving
-          ? "Reserving..."
-          : "Reserve Book"}
-      </button>
+      {/* Only show Reserve button if user is logged in */}
+      {token && (
+        <button
+          onClick={handleReserve}
+          disabled={isReserving || reserved}
+          className={`reserve-button ${reserved ? "reserved" : ""}`}
+        >
+          {reserved
+            ? "Book Reserved"
+            : isReserving
+            ? "Reserving..."
+            : "Reserve Book"}
+        </button>
+      )}
     </div>
   );
 }

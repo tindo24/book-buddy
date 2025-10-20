@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/Authcontext";
-//import { useAuth } from "./Authcontext";
-import { getReservations } from "../api/books";
+import { getReservations, deleteReservation } from "../api/books";
 import { Link } from "react-router";
 import "./Profile.css";
 
@@ -11,17 +10,16 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch reservations for this user
   useEffect(() => {
     async function fetchReservations() {
-      if (!token) {
-        setError("You must be logged in to view reservations.");
-        setLoading(false);
-        return;
-      }
+      if (!token) return;
       try {
         const data = await getReservations(token);
+        console.log("Reservations from API:", data);
         setReservations(data);
       } catch (err) {
+        console.error(err);
         setError("Failed to load reservations.");
       } finally {
         setLoading(false);
@@ -29,6 +27,17 @@ export default function Profile() {
     }
     fetchReservations();
   }, [token]);
+
+  // Handle returning a book
+  const handleReturn = async (reservationId) => {
+    try {
+      await deleteReservation(reservationId, token);
+      setReservations((prev) => prev.filter((res) => res.id !== reservationId));
+    } catch (err) {
+      console.error(err);
+      alert("Could not return book. Try again.");
+    }
+  };
 
   if (!user) {
     return (
@@ -41,7 +50,7 @@ export default function Profile() {
 
   return (
     <div className="profile-container">
-      <h2>Profile</h2>
+      <h2>{user.firstname}'s Profile</h2>
       <p>
         <strong>First Name:</strong> {user.firstname}
       </p>
@@ -59,6 +68,7 @@ export default function Profile() {
       <hr className="profile-hr" />
 
       <h3>My Reserved Books</h3>
+
       {loading ? (
         <p>Loading reservations...</p>
       ) : error ? (
@@ -69,16 +79,26 @@ export default function Profile() {
         <ul className="reservations-list">
           {reservations.map((res) => (
             <li key={res.id} className="reservation-item">
-              {res.book?.coverimage && (
-                <img src={res.book.coverimage} alt={res.book.title} />
+              {res.coverimage && (
+                <img
+                  src={res.coverimage}
+                  alt={res.title}
+                  className="reservation-book-image"
+                />
               )}
               <div className="reservation-info">
-                <Link to={`/books/${res.book?.id}`}>
-                  <strong>{res.book?.title}</strong>
+                <Link to={`/books/${res.bookid}`}>
+                  <strong>{res.title}</strong>
                 </Link>
                 <p>
-                  <strong>Author:</strong> {res.book?.author}
+                  <strong>Author:</strong> {res.author}
                 </p>
+                <button
+                  className="return-button"
+                  onClick={() => handleReturn(res.id)}
+                >
+                  Return Book
+                </button>
               </div>
             </li>
           ))}
@@ -87,55 +107,3 @@ export default function Profile() {
     </div>
   );
 }
-
-/*export default function Profile() {
-  const { user, logout } = useAuth();
-
-  if (!user) {
-    return (
-      <div>
-        <h2>No user logged in</h2>
-        <Link to="/login">Go to Login</Link>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      style={{
-        backgroundColor: "#f5f5f5",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        padding: "1rem",
-        maxWidth: "400px",
-        margin: "2rem auto",
-      }}
-    >
-      <h2>Profile</h2>
-      <p>
-        <strong>First Name:</strong> {user.firstname}
-      </p>
-      <p>
-        <strong>Last Name:</strong> {user.lastname}
-      </p>
-      <p>
-        <strong>Email:</strong> {user.email}
-      </p>
-
-      <button
-        onClick={logout}
-        style={{
-          marginTop: "1rem",
-          backgroundColor: "#4a90e2",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          padding: "0.5rem 1rem",
-          cursor: "pointer",
-        }}
-      >
-        Log out
-      </button>
-    </div>
-  );
-}*/

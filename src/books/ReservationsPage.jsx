@@ -52,41 +52,40 @@ export default function ReservationsPage() {
   return (
     <div className="reservations-container">
       <h2>My Reservations</h2>
-      {reservations.length === 0 ? (
-        <p>You have no reserved books yet.</p>
+      {reservations.filter((res) => res.book).length === 0 ? (
+        <p>You currently have no active reservations.</p>
       ) : (
         <ul className="reservation-list">
-          {reservations.map((res) => (
-            <li key={res.id} className="reservation-item">
-              {res.book ? (
-                <>
-                  {res.book.coverimage && (
-                    <img
-                      src={res.book.coverimage}
-                      alt={res.book.title}
-                      className="reservation-image"
-                    />
-                  )}
-                  <div className="reservation-info">
-                    <Link to={`/books/${res.book.id}`}>
-                      <h3>{res.book.title}</h3>
-                    </Link>
-                    <p>
-                      <strong>Author:</strong> {res.book.author}
-                    </p>
-                    <button
-                      onClick={() => handleDelete(res.id)}
-                      className="cancel-reservation-button"
-                    >
-                      Cancel Reservation
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <p>This book is no longer available.</p>
-              )}
-            </li>
-          ))}
+          {reservations
+            .filter((res) => res.book) // Only show valid reservations
+            .map((res) => (
+              <li key={res.id} className="reservation-item">
+                {res.book.coverimage && (
+                  <img
+                    src={res.book.coverimage}
+                    alt={res.book.title}
+                    className="reservation-image"
+                  />
+                )}
+                <div className="reservation-info">
+                  <Link
+                    to={`/books/${res.book.id}`}
+                    className="reservation-title"
+                  >
+                    <h3>{res.book.title}</h3>
+                  </Link>
+                  <p className="reservation-author">
+                    <strong>Author:</strong> {res.book.author}
+                  </p>
+                  <button
+                    onClick={() => handleDelete(res.id)}
+                    className="cancel-reservation-button"
+                  >
+                    Cancel Reservation
+                  </button>
+                </div>
+              </li>
+            ))}
         </ul>
       )}
     </div>

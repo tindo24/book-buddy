@@ -25,7 +25,7 @@ export async function getBookById(id) {
 }
 
 /** RESERVE A BOOK */
-export async function reserveBook(id, token) {
+export async function reserveBook(bookId, token) {
   try {
     const response = await fetch(`${API}/reservations`, {
       method: "POST",
@@ -33,22 +33,43 @@ export async function reserveBook(id, token) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ bookId: id }),
+      body: JSON.stringify({ bookId }),
     });
 
     const result = await response.json();
-
-    if (!response.ok) {
-      console.error("Reservation error:", result);
+    if (!response.ok)
       throw new Error(result.message || "Failed to reserve book");
-    }
-
     return result;
-  } catch (e) {
-    console.error("Reserve book failed:", e);
-    throw e;
+  } catch (err) {
+    console.error("Error reserving book:", err);
+    throw err;
   }
 }
+
+// export async function reserveBook(id, token) {
+//   try {
+//     const response = await fetch(`${API}/reservations`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${token}`,
+//       },
+//       body: JSON.stringify({ bookId: id }),
+//     });
+
+//     const result = await response.json();
+
+//     if (!response.ok) {
+//       console.error("Reservation error:", result);
+//       throw new Error(result.message || "Failed to reserve book");
+//     }
+
+//     return result;
+//   } catch (e) {
+//     console.error("Reserve book failed:", e);
+//     throw e;
+//   }
+// }
 // reserved book check
 
 export async function getReservations(token) {
@@ -90,28 +111,3 @@ export async function deleteReservation(reservationId, token) {
     throw err;
   }
 }
-
-/** GET AN ARRAY OF BOOKS FROM THE API 
-export async function getBooks() {
-  try {
-    const response = await fetch(`${API}/books`);
-    const result = await response.json();
-    return result;
-  } catch (e) {
-    console.error(e);
-    return [];
-  }
-}
-
-/** FETCH A SINGLE BOOK FROM THE API BY ITS ID 
-export async function getBookById(id) {
-  try {
-    const response = await fetch(`${API}/books/${id}`);
-    if (!response.ok) throw new Error(`Failed to fetch book with id ${id}`);
-    const result = await response.json();
-    return result;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-}*/
